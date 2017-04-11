@@ -2,30 +2,32 @@
 
 <html>
   <head>
-    <title>gfs-droppoint-map test</title>
+    <title>gfs-droppoint-data test</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
 
-    <link rel="import" href="../gfs-droppoint-map.html">
+    <link rel="import" href="../gfs-droppoint-data.html">
   </head>
   <body>
 
     <test-fixture id="basic">
       <template>
-        <gfs-droppoint-map></gfs-droppoint-map>
+        <gfs-droppoint-data></gfs-droppoint-data>
       </template>
     </test-fixture>
 
     <script>
-      suite('gfs-droppoint-map', function() {
+      suite('gfs-droppoint-data', function() {
 
         suite('basic component tests', function() {
+
           test('instantiating the element works', function() {
             var element = fixture('basic');
-            assert.equal(element.is, 'gfs-droppoint-map');
+            assert.equal(element.is, 'gfs-droppoint-data');
           });
+
         });
 
       });
