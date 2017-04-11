@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
 
 <!--
 `gfs-droppoint-data`
@@ -9,12 +10,13 @@ A component for integrating with the GFS Drop Point API
 
 <dom-module id="gfs-droppoint-data">
   <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]</h2>
+    <iron-ajax id='getDropPoints'
+      debounce-duration="300"
+      handle-as="json"
+      method="GET"
+      on-response="_newDropPointsAvailable"
+      content-type="application/json">
+    </iron-ajax>
   </template>
 
   <script>
@@ -23,12 +25,35 @@ A component for integrating with the GFS Drop Point API
       is: 'gfs-droppoint-data',
 
       properties: {
-        prop1: {
+        jwt: {
           type: String,
-          value: 'gfs-droppoint-data',
+          value: ''
+        },
+        baseUrl: {
+          type: String,
+          value: 'https://api.justshoutgfs.com/droppoints',
         },
       },
+      observers: [
+        '_updateDropPoints(jwt, baseUrl)'
+      ],
+      _updateDropPoints: function(token, url) {
+        if(token === "" ||
+            url === "")
+            return;
 
+        var server = this.$.getDropPoints;
+        server.headers = this._createBearerToken();
+
+        server.url = url;
+        server.generateRequest();
+      },
+      _newDropPointsAvailable: function(e) {
+
+      },
+      _createBearerToken: function() {
+        return {"Authorization": "Bearer " + this.jwt};
+      }
     });
   </script>
 </dom-module>
