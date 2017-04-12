@@ -30,6 +30,12 @@
       </template>
     </test-fixture>
 
+    <test-fixture id="dataHandling">
+      <template>
+        <gfs-droppoint-data base-url="/returns-data"></gfs-droppoint-data>
+      </template>
+    </test-fixture>
+
     <script type="text/javascript">
       suite('gfs-droppoint-data', function() {
 
@@ -83,7 +89,7 @@
             server.respond();
           })
 
-          test('base-url property control AJAX request', function() {
+          test('base-url property controls AJAX request', function() {
             var element = fixture('baseUrl');
 
             server.requests = [];
@@ -145,6 +151,77 @@
             assert.equal(server.requests.length, 1)
             assert.equal(server.requests[0].requestHeaders.authorization, "Bearer 1234");
           });
+        });
+
+        suite('data handling tests', function() {
+          var server;
+          var dropPointData = {"dropPoints": [{"id":"1234", "name":"A NAME", "providerId":"PROVIDER", "links":[{"rel":"self","href":"droppoint/PROVIDER-1234"}],"geoLocation":{"lat":50.915195, "long":-1.486845},"distance":1234.12}]};
+
+          setup(function() {
+            server = sinon.fakeServer.create();
+
+            server.respondWith(
+              'GET',
+              /\/returns-data.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                JSON.stringify(dropPointData)
+              ]
+            );
+          });
+
+          teardown(function() {
+            server.restore();
+          });
+
+          test('fires event when starting drop point update', function(done){
+            var element = fixture('dataHandling');
+            var eventSpy = sinon.spy();
+
+            setTimeout(function () {
+              assert.isTrue(eventSpy.called);
+              assert.isTrue(eventSpy.calledOnce);
+              done();
+            }, 1000);
+
+            element.addEventListener('startedloading', eventSpy);
+            element.jwt = '1234';
+            server.respond();
+          });
+
+          test('fires event when drop point update completes', function(done){
+            var element = fixture('dataHandling');
+            var eventSpy = sinon.spy();
+
+            setTimeout(function () {
+              assert.isTrue(eventSpy.called);
+              assert.isTrue(eventSpy.calledOnce);
+              done();
+            }, 1000);
+
+            element.addEventListener('completedloading', eventSpy);
+            element.jwt = '1234';
+            server.respond();
+          });
+
+          test('completion event contains drop point details', function(done){
+            var element = fixture('dataHandling');
+            var eventSpy = sinon.spy();
+
+            setTimeout(function () {
+              assert.isAtLeast(eventSpy.firstCall.args.length, 1);
+              assert.typeOf(eventSpy.firstCall.args[0], "event");
+              assert.deepEqual(eventSpy.firstCall.args[0].detail, dropPointData);
+              done();
+            }, 1000);
+
+            element.addEventListener('completedloading', eventSpy);
+            element.jwt = '1234';
+            server.respond();
+          });
+
         });
 
       });

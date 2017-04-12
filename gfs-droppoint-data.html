@@ -46,10 +46,13 @@ A component for integrating with the GFS Drop Point API
         server.headers = this._createBearerToken();
 
         server.url = url;
+
+        this.fire('startedloading', {});
+
         server.generateRequest();
       },
       _newDropPointsAvailable: function(e) {
-
+        this.fire('completedloading', e.detail.response);
       },
       _createBearerToken: function() {
         return {"Authorization": "Bearer " + this.jwt};
