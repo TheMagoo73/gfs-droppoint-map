@@ -15,6 +15,7 @@ A component for integrating with the GFS Drop Point API
       handle-as="json"
       method="GET"
       on-response="_newDropPointsAvailable"
+      on-error="_dropPointDownloadError"
       content-type="application/json">
     </iron-ajax>
   </template>
@@ -50,6 +51,26 @@ A component for integrating with the GFS Drop Point API
         this.fire('startedloading', {});
 
         server.generateRequest();
+      },
+      _dropPointDownloadError: function(e) {
+        var req = e.detail.request;
+
+        switch(req.status)
+        {
+          case 401:
+            this.fire('authenticationerror', {error:{reason: "notAuthenticated"}});
+            break;
+          case 403:
+            this.fire('authenticationerror', {error:{reason: "forbidden"}});
+            break;
+          case 404:
+          this.fire('loadingerror', {error:{reason: "notFound"}});
+          default:
+            this.fire('loadingerror', {error:{reason: "generalError"}});
+            break;
+        }
+
+        var resp = e.detail.request.status;
       },
       _newDropPointsAvailable: function(e) {
         this.fire('completedloading', e.detail.response);
