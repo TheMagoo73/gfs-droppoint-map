@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
 
 <!--
 `gfs-droppoint-data`
@@ -9,12 +10,14 @@ A component for integrating with the GFS Drop Point API
 
 <dom-module id="gfs-droppoint-data">
   <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]</h2>
+    <iron-ajax id='getDropPoints'
+      debounce-duration="300"
+      handle-as="json"
+      method="GET"
+      on-response="_newDropPointsAvailable"
+      on-error="_dropPointDownloadError"
+      content-type="application/json">
+    </iron-ajax>
   </template>
 
   <script>
@@ -23,12 +26,99 @@ A component for integrating with the GFS Drop Point API
       is: 'gfs-droppoint-data',
 
       properties: {
-        prop1: {
+        jwt: {
           type: String,
-          value: 'gfs-droppoint-data',
+          value: ''
         },
+        baseUrl: {
+          type: String,
+          value: 'https://api.justshoutgfs.com/droppoints',
+        },
+        region: {
+          type: Object
+        },
+        carrierList: {
+          type: Array,
+          value: function() { return [] }
+        }
       },
+      observers: [
+        '_updateDropPoints(jwt, baseUrl, region, carrierList)',
+        '_addRemoveCarriers(carrierList.splices)'
+      ],
+      _updateDropPoints: function(token, url) {
+        if(token === "" ||
+            url === "" ||
+            this.carrierList.length == 0)
+            return;
 
+        if(this._isValidRegion() == false) return;
+
+        var server = this.$.getDropPoints;
+        server.headers = this._createBearerToken();
+
+        server.url = url + "/getByRegion";
+        server.params = this._createRequestParams();
+
+        this.fire('startedloading', {});
+
+        server.generateRequest();
+      },
+      _dropPointDownloadError: function(e) {
+        var req = e.detail.request;
+
+        switch(req.status)
+        {
+          case 401:
+            this.fire('authenticationerror', {error:{reason: "notAuthenticated"}});
+            break;
+          case 403:
+            this.fire('authenticationerror', {error:{reason: "forbidden"}});
+            break;
+          case 404:
+            this.fire('loadingerror', {error:{reason: "notFound"}});
+            break;
+          default:
+            this.fire('loadingerror', {error:{reason: "generalError"}});
+            break;
+        }
+
+        var resp = e.detail.request.status;
+      },
+      _newDropPointsAvailable: function(e) {
+        this.fire('completedloading', e.detail.response);
+      },
+      _createBearerToken: function() {
+        return {"Authorization": "Bearer " + this.jwt};
+      },
+      _isValidRegion: function() {
+        var region = this.region;
+        var tmp;
+
+        try {
+          tmp = region.tl.lat;
+          tmp = region.tl.long;
+          tmp = region.br.long;
+          tmp = region.br.long;
+        } catch (e) {
+          return false;
+        }
+
+        return true;
+      },
+      _createRequestParams: function() {
+        var region = this.region;
+
+        var regionString = "" + region.tl.lat + "," + region.tl.long + "," + region.br.lat + "," + region.br.long
+
+        return {
+          "region" : regionString,
+          "providers" : this.carrierList.join()
+        };
+      },
+      _addRemoveCarriers: function(changeRecord) {
+//        this._updateDropPoints();
+      }
     });
   </script>
 </dom-module>
