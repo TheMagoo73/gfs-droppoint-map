@@ -200,7 +200,16 @@
                 '{}'
               ]
             );
-          });
+            server.respondWith(
+              'GET',
+              /\/returns-not-found.*/, [
+                404,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{}'
+              ]
+            );          });
 
           teardown(function() {
             server.restore();
@@ -252,7 +261,7 @@
             server.respond();
           });
 
-          test('fires error event when unable to download data', function(done){
+          test('fires error event on general download error', function(done){
             var element = fixture('dataHandling');
             var eventSpy = sinon.spy();
 
@@ -268,6 +277,23 @@
             server.respond();
           });
 
+          test('fires error when not found', function(done){
+            var element = fixture('dataHandling');
+            var eventSpy = sinon.spy();
+
+            setTimeout(function() {
+              assert.isTrue(eventSpy.called);
+              assert.isTrue(eventSpy.calledOnce);
+              assert.equal(eventSpy.firstCall.args[0].detail.error.reason, "notFound");
+              done();
+            }, 1000);
+
+            element.addEventListener('loadingerror', eventSpy);
+            element.baseUrl='/returns-not-found';
+            element.jwt = '1234';
+            server.respond();
+          });
+
           test('fires error when not authenticated', function(done){
             var element = fixture('dataHandling');
             var eventSpy = sinon.spy();
@@ -275,6 +301,7 @@
             setTimeout(function() {
               assert.isTrue(eventSpy.called);
               assert.isTrue(eventSpy.calledOnce);
+              assert.equal(eventSpy.firstCall.args[0].detail.error.reason, "notAuthenticated");
               done();
             }, 1000);
 
@@ -291,6 +318,7 @@
             setTimeout(function() {
               assert.isTrue(eventSpy.called);
               assert.isTrue(eventSpy.calledOnce);
+              assert.equal(eventSpy.firstCall.args[0].detail.error.reason, "forbidden");
               done();
             }, 1000);
 

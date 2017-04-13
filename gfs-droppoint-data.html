@@ -64,7 +64,8 @@ A component for integrating with the GFS Drop Point API
             this.fire('authenticationerror', {error:{reason: "forbidden"}});
             break;
           case 404:
-          this.fire('loadingerror', {error:{reason: "notFound"}});
+            this.fire('loadingerror', {error:{reason: "notFound"}});
+            break;
           default:
             this.fire('loadingerror', {error:{reason: "generalError"}});
             break;
