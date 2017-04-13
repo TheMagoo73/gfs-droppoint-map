@@ -34,6 +34,9 @@ A component for integrating with the GFS Drop Point API
           type: String,
           value: 'https://api.justshoutgfs.com/droppoints',
         },
+        region: {
+          type: Object
+        }
       },
       observers: [
         '_updateDropPoints(jwt, baseUrl)'
@@ -43,10 +46,13 @@ A component for integrating with the GFS Drop Point API
             url === "")
             return;
 
+        if(this._isValidRegion() == false) return;
+
         var server = this.$.getDropPoints;
         server.headers = this._createBearerToken();
 
-        server.url = url;
+        server.url = url + "/getByRegion";
+        server.params = this._createRequestParams();
 
         this.fire('startedloading', {});
 
@@ -78,6 +84,31 @@ A component for integrating with the GFS Drop Point API
       },
       _createBearerToken: function() {
         return {"Authorization": "Bearer " + this.jwt};
+      },
+      _isValidRegion: function() {
+        var region = this.region;
+        var tmp;
+
+        try {
+          tmp = region.tl.lat;
+          tmp = region.tl.long;
+          tmp = region.br.long;
+          tmp = region.br.long;
+        } catch (e) {
+          return false;
+        }
+
+        return true;
+      },
+      _createRequestParams: function() {
+        var region = this.region;
+
+        var regionString = "" + region.tl.lat + "," + region.tl.long + "," + region.br.lat + "," + region.br.long
+
+        return {
+          "region" : regionString,
+          "providers" : ""
+        };
       }
     });
   </script>

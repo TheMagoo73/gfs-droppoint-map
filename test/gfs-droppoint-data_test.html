@@ -20,7 +20,7 @@
 
     <test-fixture id="baseUrl">
       <template>
-        <gfs-droppoint-data jwt="1234"></gfs-droppoint-data>
+        <gfs-droppoint-data jwt="1234" region='{"tl":{"lat": 1, "long": 2}, "br":{"lat": 1, "long": 2}}'></gfs-droppoint-data>
       </template>
     </test-fixture>
 
@@ -30,14 +30,31 @@
       </template>
     </test-fixture>
 
+    <test-fixture id="region">
+      <template>
+        <gfs-droppoint-data region='{"tl":{"lat": 1, "long": 2}, "br":{"lat": 1, "long": 2}}'></gfs-droppoint-data>
+      </template>
+    </test-fixture>
+
     <test-fixture id="dataHandling">
       <template>
-        <gfs-droppoint-data base-url="/returns-data"></gfs-droppoint-data>
+        <gfs-droppoint-data base-url="/returns-data" region='{"tl":{"lat": 1, "long": 2}, "br":{"lat": 1, "long": 2}}'></gfs-droppoint-data>
       </template>
     </test-fixture>
 
     <script type="text/javascript">
       suite('gfs-droppoint-data', function() {
+
+        var region =  {
+                        "tl": {
+                          "lat": 1,
+                          "long": 2
+                        },
+                        "br": {
+                          "lat": 1,
+                          "long": 2
+                        }
+                      };
 
         suite('basic component tests', function() {
 
@@ -98,7 +115,7 @@
             element.baseUrl = '\/returns-data';
 
             assert.equal(server.requests.length, 1);
-            assert.equal(server.requests[0].url, "/returns-data");
+            assert.equal(server.requests[0].url.substring(0,13), "/returns-data");
 
             server.respond();
           });
@@ -139,11 +156,15 @@
           });
 
           test('server is not called with empty JWT', function() {
+            var element = fixture('jwt');
+            element.region = region;
+
             assert.equal(server.requests.length, 0);
           });
 
           test('server is called with correct JWT', function() {
             var element = fixture('jwt');
+            element.region = region;
             element.jwt = '1234';
 
             server.respond();
@@ -151,6 +172,70 @@
             assert.equal(server.requests.length, 1)
             assert.equal(server.requests[0].requestHeaders.authorization, "Bearer 1234");
           });
+        });
+
+        suite('region tests', function() {
+
+          setup(function() {
+            server = sinon.fakeServer.create();
+
+            server.respondWith(
+              'GET',
+              /\/api.justshoutgfs.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+
+            server.respondWith(
+              'GET',
+              /\/returns-data.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+          });
+
+          teardown(function() {
+            server.restore();
+          });
+
+          test('has region property', function() {
+            var element = fixture('region');
+            assert.deepEqual(element.region, region);
+          });
+
+          test('server is not called with empty region', function() {
+            var element = fixture('region');
+            element.region = {};
+            element.jwt = "1234";
+
+            assert.equal(server.requests.length, 0);
+          });
+
+          test('server is not called with invalid region', function() {
+            var element = fixture('region');
+            element.region = {"foo" : "bar"};
+            element.jwt = "1234";
+
+            assert.equal(server.requests.length, 0);
+          });
+
+          test('server is called with valid region', function() {
+            var element = fixture('region');
+            element.region = region;
+            element.jwt = "1234";
+            server.respond();
+
+            assert.equal(server.requests.length, 1);
+          });
+
         });
 
         suite('data handling tests', function() {
