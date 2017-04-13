@@ -36,14 +36,20 @@ A component for integrating with the GFS Drop Point API
         },
         region: {
           type: Object
+        },
+        carrierList: {
+          type: Array,
+          value: function() { return [] }
         }
       },
       observers: [
-        '_updateDropPoints(jwt, baseUrl)'
+        '_updateDropPoints(jwt, baseUrl, region, carrierList)',
+        '_addRemoveCarriers(carrierList.splices)'
       ],
       _updateDropPoints: function(token, url) {
         if(token === "" ||
-            url === "")
+            url === "" ||
+            this.carrierList.length == 0)
             return;
 
         if(this._isValidRegion() == false) return;
@@ -107,8 +113,11 @@ A component for integrating with the GFS Drop Point API
 
         return {
           "region" : regionString,
-          "providers" : ""
+          "providers" : this.carrierList.join()
         };
+      },
+      _addRemoveCarriers: function(changeRecord) {
+//        this._updateDropPoints();
       }
     });
   </script>
