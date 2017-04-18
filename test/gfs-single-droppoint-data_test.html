@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>gfs-single-droppoint-data test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../gfs-single-droppoint-data.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <gfs-single-droppoint-data></gfs-single-droppoint-data>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('gfs-single-droppoint-data', function() {
+
+        suite('basic component tests', function() {
+          test('instantiating the element works', function() {
+            var element = fixture('basic');
+            assert.equal(element.is, 'gfs-single-droppoint-data');
+          });
+        });
+
+      });
+    </script>
+  </body>
+</html>
