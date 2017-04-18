@@ -29,6 +29,12 @@
       </template>
     </test-fixture>
 
+    <test-fixture id="dropPointId">
+      <template>
+        <gfs-single-droppoint-data jwt='1234'></gfs-single-droppoint-data>
+      </template>
+    </test-fixture>
+
     <script>
       suite('gfs-single-droppoint-data', function() {
 
@@ -148,6 +154,53 @@
 
         });
 
+        suite('drop point id tests', function() {
+          var server;
+
+          setup(function() {
+            server = sinon.fakeServer.create();
+
+            server.respondWith(
+              'GET',
+              /\/api.justshoutgfs.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+
+            server.respondWith(
+              'GET',
+              /\/returns-data.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+          });
+
+          teardown(function() {
+            server.restore();
+          });
+
+          test('server is not called with an empty id', function() {
+            var element = fixture('dropPointId');
+
+            assert.equal(server.requests.length, 0);
+          });
+
+          test('server is called with the correct id', function() {
+            var element = fixture('dropPointId');
+            element.dropPointId = "abcd";
+
+            assert.equal(server.requests.length, 1);
+            assert.isTrue(server.requests[0].url.endsWith("/abcd"));
+          });
+        });
       });
     </script>
   </body>
