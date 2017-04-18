@@ -11,8 +11,21 @@
   <body>
 
     <test-fixture id="basic">
+
       <template>
         <gfs-single-droppoint-data></gfs-single-droppoint-data>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="jwt">
+      <template>
+        <gfs-single-droppoint-data></gfs-single-droppoint-data>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="baseUrl">
+      <template>
+        <gfs-single-droppoint-data jwt='1234' drop-point-id='abcd'></gfs-single-droppoint-data>
       </template>
     </test-fixture>
 
@@ -24,6 +37,115 @@
             var element = fixture('basic');
             assert.equal(element.is, 'gfs-single-droppoint-data');
           });
+        });
+
+        suite('jwt tests', function() {
+          var server;
+
+          setup(function() {
+            server = sinon.fakeServer.create();
+
+            server.respondWith(
+              'GET',
+              /\/api.justshoutgfs.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+
+            server.respondWith(
+              'GET',
+              /\/returns-data.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+          });
+
+          teardown(function() {
+            server.restore();
+          });
+
+          test('server is not called with empty JWT', function() {
+            var element = fixture('jwt');
+            element.region = 'abcd';
+
+            assert.equal(server.requests.length, 0);
+          });
+
+          test('server is called with correct JWT', function() {
+            var element = fixture('jwt');
+            element.dropPointId = 'abcd';
+            element.jwt = '1234';
+
+            server.respond();
+
+            assert.equal(server.requests.length, 1)
+            assert.equal(server.requests[0].requestHeaders.authorization, "Bearer 1234");
+          });
+        });
+
+        suite('base URL tests', function() {
+
+          var server;
+
+          setup(function() {
+            server = sinon.fakeServer.create();
+
+            server.respondWith(
+              'GET',
+              /\/api.justshoutgfs.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+
+            server.respondWith(
+              'GET',
+              /\/returns-data.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+          });
+
+          teardown(function() {
+            server.restore();
+          });
+
+          test('base-url property has default value', function() {
+            var element = fixture('baseUrl');
+            assert.equal(element.baseUrl, "https://api.justshoutgfs.com/droppoints")
+
+            server.respond();
+          })
+
+          test('base-url property controls AJAX request', function() {
+            var element = fixture('baseUrl');
+
+            server.requests = [];
+            server.queue = [];
+
+            element.baseUrl = '\/returns-data';
+
+            assert.equal(server.requests.length, 1);
+            assert.equal(server.requests[0].url.substring(0,13), "/returns-data");
+
+            server.respond();
+          });
+
         });
 
       });

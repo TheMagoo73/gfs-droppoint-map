@@ -11,6 +11,14 @@ query for information on a single drop point
 
 <dom-module id="gfs-single-droppoint-data">
   <template>
+    <iron-ajax id='getDropPoint'
+      debounce-duration="300"
+      handle-as="json"
+      method="GET"
+      on-response="_newDropPointAvailable"
+      on-error="_dropPointDownloadError"
+      content-type="application/json">
+    </iron-ajax>
   </template>
 
   <script>
@@ -19,12 +27,44 @@ query for information on a single drop point
       is: 'gfs-single-droppoint-data',
 
       properties: {
-        prop1: {
+        /** JWT (Java Web Token) used to authenticate with GFS servers*/
+        jwt: {
           type: String,
-          value: 'gfs-single-droppoint-data',
+          value: ''
         },
+        /** Base URL for accessing the service*/
+        baseUrl: {
+          type: String,
+          value: 'https://api.justshoutgfs.com/droppoints',
+        },
+        dropPointId: {
+          type: String,
+          value: ""
+        }
       },
+      observers: [
+        '_getDropPoint(jwt, baseUrl, dropPointId)',
+      ],
+      _getDropPoint: function(token, url, id){
+        if(token === "" ||
+            url === "" ||
+            id === "") return;
 
+        server = this.$.getDropPoint;
+        server.headers = this._createBearerToken();
+        server.url = url + "/" + id;
+        
+        server.generateRequest();
+      },
+      _createBearerToken: function() {
+        return {"Authorization": "Bearer " + this.jwt};
+      },
+      _newDropPointAvailable: function(e){
+
+      },
+      _dropPointDownloadError: function(e){
+
+      }
     });
   </script>
 </dom-module>
