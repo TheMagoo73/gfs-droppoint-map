@@ -390,7 +390,7 @@
               done();
             }, 1000);
 
-            element.addEventListener('startedloading', eventSpy);
+            element.addEventListener('started-loading', eventSpy);
             element.jwt = '1234';
             server.respond();
           });
@@ -405,7 +405,7 @@
               done();
             }, 1000);
 
-            element.addEventListener('completedloading', eventSpy);
+            element.addEventListener('completed-loading', eventSpy);
             element.jwt = '1234';
             server.respond();
           });
@@ -421,7 +421,7 @@
               done();
             }, 1000);
 
-            element.addEventListener('completedloading', eventSpy);
+            element.addEventListener('completed-loading', eventSpy);
             element.jwt = '1234';
             server.respond();
           });
@@ -436,7 +436,7 @@
               done();
             }, 1000);
 
-            element.addEventListener('loadingerror', eventSpy);
+            element.addEventListener('loading-error', eventSpy);
             element.baseUrl='/returns-error';
             element.jwt = '1234';
             server.respond();
@@ -453,7 +453,7 @@
               done();
             }, 1000);
 
-            element.addEventListener('loadingerror', eventSpy);
+            element.addEventListener('loading-error', eventSpy);
             element.baseUrl='/returns-not-found';
             element.jwt = '1234';
             server.respond();
@@ -470,7 +470,7 @@
               done();
             }, 1000);
 
-            element.addEventListener('authenticationerror', eventSpy);
+            element.addEventListener('authentication-error', eventSpy);
             element.baseUrl='/returns-not-auth';
             element.jwt = '1234';
             server.respond();
@@ -487,7 +487,7 @@
               done();
             }, 1000);
 
-            element.addEventListener('authenticationerror', eventSpy);
+            element.addEventListener('authentication-error', eventSpy);
             element.baseUrl='/returns-forbidden';
             element.jwt = '1234';
             server.respond();
