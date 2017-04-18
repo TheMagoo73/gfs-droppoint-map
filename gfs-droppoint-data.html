@@ -3,7 +3,8 @@
 
 <!--
 `gfs-droppoint-data`
-A component for integrating with the GFS Drop Point API
+A component for integrating with the GFS Drop Point API to
+query for region based drop point information
 
 @demo demo/index.html
 -->
@@ -25,18 +26,53 @@ A component for integrating with the GFS Drop Point API
 
       is: 'gfs-droppoint-data',
 
+    /**
+     * Fired when a request to the server starts.
+     *
+     * @event startedloading
+     */
+
+    /**
+     * Fired when a request to the server successfully completes.
+     *
+     * @event completedloading
+     * @param {object} dropPoints Drop points returned by the server.
+     */
+
+    /**
+     * Fired when a request to the server fails to authenticate.
+     *
+     * @event authenticationerror
+     * @param {object} error Information on the authentication failure.
+     */
+
+    /**
+     * Fired when an authenticated request to the server fails.
+     *
+     * @event loadingerror
+     * @param {object} error Information on the error.
+     */
+
       properties: {
+        /** JWT (Java Web Token) used to authenticate with GFS servers*/
         jwt: {
           type: String,
           value: ''
         },
+        /** Base URL for accessing the service*/
         baseUrl: {
           type: String,
           value: 'https://api.justshoutgfs.com/droppoints',
         },
+        /** Geo-region to query
+        * @type {}
+        */
         region: {
           type: Object
         },
+        /** Carrier(s) to query
+        * @type Array<String>
+        */
         carrierList: {
           type: Array,
           value: function() { return [] }
