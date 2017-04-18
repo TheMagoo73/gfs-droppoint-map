@@ -36,6 +36,24 @@
     </test-fixture>
 
     <script>
+
+      // Monkey patch endsWith as some browsers don't support it, but
+      // it's needed for a couple of unit tests (not the unit under
+      // test though!)
+      if(String.prototype.endsWith === undefined)
+      {
+        String.prototype.endsWith = function(str) {
+
+          var revString = this.split('').reverse().join('');
+          var revFind = str.split('').reverse().join('');
+
+          if(revString.substring(0, revFind.length) != revFind)
+            return false;
+
+          return true;
+        }
+      }
+
       suite('gfs-single-droppoint-data', function() {
 
         suite('basic component tests', function() {
