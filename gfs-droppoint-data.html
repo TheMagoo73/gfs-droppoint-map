@@ -29,27 +29,27 @@ query for region based drop point information
     /**
      * Fired when a request to the server starts.
      *
-     * @event startedloading
+     * @event started-loading
      */
 
     /**
      * Fired when a request to the server successfully completes.
      *
-     * @event completedloading
+     * @event completed-loading
      * @param {object} dropPoints Drop points returned by the server.
      */
 
     /**
      * Fired when a request to the server fails to authenticate.
      *
-     * @event authenticationerror
+     * @event authentication-error
      * @param {object} error Information on the authentication failure.
      */
 
     /**
      * Fired when an authenticated request to the server fails.
      *
-     * @event loadingerror
+     * @event loading-error
      * @param {object} error Information on the error.
      */
 
@@ -96,7 +96,7 @@ query for region based drop point information
         server.url = url + "/getByRegion";
         server.params = this._createRequestParams();
 
-        this.fire('startedloading', {});
+        this.fire('started-loading', {});
 
         server.generateRequest();
       },
@@ -106,23 +106,23 @@ query for region based drop point information
         switch(req.status)
         {
           case 401:
-            this.fire('authenticationerror', {error:{reason: "notAuthenticated"}});
+            this.fire('authentication-error', {error:{reason: "notAuthenticated"}});
             break;
           case 403:
-            this.fire('authenticationerror', {error:{reason: "forbidden"}});
+            this.fire('authentication-error', {error:{reason: "forbidden"}});
             break;
           case 404:
-            this.fire('loadingerror', {error:{reason: "notFound"}});
+            this.fire('loading-error', {error:{reason: "notFound"}});
             break;
           default:
-            this.fire('loadingerror', {error:{reason: "generalError"}});
+            this.fire('loading-error', {error:{reason: "generalError"}});
             break;
         }
 
         var resp = e.detail.request.status;
       },
       _newDropPointsAvailable: function(e) {
-        this.fire('completedloading', e.detail.response);
+        this.fire('completed-loading', e.detail.response);
       },
       _createBearerToken: function() {
         return {"Authorization": "Bearer " + this.jwt};

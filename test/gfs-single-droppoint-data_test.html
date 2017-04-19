@@ -1,76 +1,124 @@
-<!doctype html>
-
 <html>
   <head>
-    <title>gfs-droppoint-data test</title>
+    <title>gfs-single-droppoint-data test</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
 
-    <link rel="import" href="../gfs-droppoint-data.html">
+    <link rel="import" href="../gfs-single-droppoint-data.html">
   </head>
   <body>
 
     <test-fixture id="basic">
-      <template>
-        <gfs-droppoint-data></gfs-droppoint-data>
-      </template>
-    </test-fixture>
 
-    <test-fixture id="baseUrl">
       <template>
-        <gfs-droppoint-data jwt="1234" region='{"tl":{"lat": 1, "long": 2}, "br":{"lat": 1, "long": 2}}' carrier-list='["DPD", "YODEL", "INPOST"]'></gfs-droppoint-data>
+        <gfs-single-droppoint-data></gfs-single-droppoint-data>
       </template>
     </test-fixture>
 
     <test-fixture id="jwt">
       <template>
-        <gfs-droppoint-data></gfs-droppoint-data>
+        <gfs-single-droppoint-data></gfs-single-droppoint-data>
       </template>
     </test-fixture>
 
-    <test-fixture id="region">
+    <test-fixture id="baseUrl">
       <template>
-        <gfs-droppoint-data region='{"tl":{"lat": 1, "long": 2}, "br":{"lat": 1, "long": 2}}' carrier-list='["DPD", "YODEL", "INPOST"]'></gfs-droppoint-data>
+        <gfs-single-droppoint-data jwt='1234' drop-point-id='abcd'></gfs-single-droppoint-data>
       </template>
     </test-fixture>
 
-    <test-fixture id="carrierList">
+    <test-fixture id="dropPointId">
       <template>
-        <gfs-droppoint-data region='{"tl":{"lat": 1, "long": 2}, "br":{"lat": 1, "long": 2}}' carrier-list='["DPD", "YODEL", "INPOST"]'></gfs-droppoint-data>
+        <gfs-single-droppoint-data jwt='1234'></gfs-single-droppoint-data>
       </template>
     </test-fixture>
 
     <test-fixture id="dataHandling">
       <template>
-        <gfs-droppoint-data base-url="/returns-data" region='{"tl":{"lat": 1, "long": 2}, "br":{"lat": 1, "long": 2}}' carrier-list='["DPD", "YODEL", "INPOST"]'></gfs-droppoint-data>
+        <gfs-single-droppoint-data base-url='/returns-data' drop-point-id='abcd'></gfs-single-droppoint-data>
       </template>
     </test-fixture>
 
-    <script type="text/javascript">
-      suite('gfs-droppoint-data', function() {
+    <script>
 
-        var region =  {
-                        "tl": {
-                          "lat": 1,
-                          "long": 2
-                        },
-                        "br": {
-                          "lat": 1,
-                          "long": 2
-                        }
-                      };
+      // Monkey patch endsWith as some browsers don't support it, but
+      // it's needed for a couple of unit tests (not the unit under
+      // test though!)
+      if(String.prototype.endsWith === undefined)
+      {
+        String.prototype.endsWith = function(str) {
 
-        var carrierList = ["DPD", "YODEL", "INPOST"];
+          var revString = this.split('').reverse().join('');
+          var revFind = str.split('').reverse().join('');
+
+          if(revString.substring(0, revFind.length) != revFind)
+            return false;
+
+          return true;
+        }
+      }
+
+      suite('gfs-single-droppoint-data', function() {
 
         suite('basic component tests', function() {
-
           test('instantiating the element works', function() {
             var element = fixture('basic');
-            assert.equal(element.is, 'gfs-droppoint-data');
+            assert.equal(element.is, 'gfs-single-droppoint-data');
+          });
+        });
+
+        suite('jwt tests', function() {
+          var server;
+
+          setup(function() {
+            server = sinon.fakeServer.create();
+
+            server.respondWith(
+              'GET',
+              /\/api.justshoutgfs.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
+
+            server.respondWith(
+              'GET',
+              /\/returns-data.*/, [
+                200,
+                {
+                  json: { 'Content-Type': 'application/json' }
+                },
+                '{"success":"true"}'
+              ]
+            );
           });
 
+          teardown(function() {
+            server.restore();
+          });
+
+          test('server is not called with empty JWT', function() {
+            var element = fixture('jwt');
+            element.region = 'abcd';
+
+            assert.equal(server.requests.length, 0);
+          });
+
+          test('server is called with correct JWT', function() {
+            var element = fixture('jwt');
+            element.dropPointId = 'abcd';
+            element.jwt = '1234';
+
+            server.respond();
+
+            assert.equal(server.requests.length, 1)
+            assert.equal(server.requests[0].requestHeaders.authorization, "Bearer 1234");
+          });
         });
 
         suite('base URL tests', function() {
@@ -130,7 +178,7 @@
 
         });
 
-        suite('jwt tests', function() {
+        suite('drop point id tests', function() {
           var server;
 
           setup(function() {
@@ -163,149 +211,19 @@
             server.restore();
           });
 
-          test('server is not called with empty JWT', function() {
-            var element = fixture('jwt');
-            element.region = region;
+          test('server is not called with an empty id', function() {
+            var element = fixture('dropPointId');
 
             assert.equal(server.requests.length, 0);
           });
 
-          test('server is called with correct JWT', function() {
-            var element = fixture('jwt');
-            element.region = region;
-            element.carrierList = carrierList;
-            element.jwt = '1234';
-
-            server.respond();
-
-            assert.equal(server.requests.length, 1)
-            assert.equal(server.requests[0].requestHeaders.authorization, "Bearer 1234");
-          });
-        });
-
-        suite('region tests', function() {
-
-          var server;
-
-          setup(function() {
-            server = sinon.fakeServer.create();
-
-            server.respondWith(
-              'GET',
-              /\/api.justshoutgfs.*/, [
-                200,
-                {
-                  json: { 'Content-Type': 'application/json' }
-                },
-                '{"success":"true"}'
-              ]
-            );
-
-            server.respondWith(
-              'GET',
-              /\/returns-data.*/, [
-                200,
-                {
-                  json: { 'Content-Type': 'application/json' }
-                },
-                '{"success":"true"}'
-              ]
-            );
-          });
-
-          teardown(function() {
-            server.restore();
-          });
-
-          test('has region property', function() {
-            var element = fixture('region');
-            assert.deepEqual(element.region, region);
-          });
-
-          test('server is not called with empty region', function() {
-            var element = fixture('region');
-            element.region = {};
-            element.jwt = "1234";
-
-            assert.equal(server.requests.length, 0);
-          });
-
-          test('server is not called with invalid region', function() {
-            var element = fixture('region');
-            element.region = {"foo" : "bar"};
-            element.jwt = "1234";
-
-            assert.equal(server.requests.length, 0);
-          });
-
-          test('server is called with valid region', function() {
-            var element = fixture('region');
-            element.region = region;
-            element.jwt = "1234";
-            server.respond();
+          test('server is called with the correct id', function() {
+            var element = fixture('dropPointId');
+            element.dropPointId = "abcd";
 
             assert.equal(server.requests.length, 1);
+            assert.isTrue(server.requests[0].url.endsWith("/abcd"));
           });
-
-        });
-
-        suite('carrier tests', function() {
-
-          var server;
-
-          setup(function() {
-            server = sinon.fakeServer.create();
-
-            server.respondWith(
-              'GET',
-              /\/api.justshoutgfs.*/, [
-                200,
-                {
-                  json: { 'Content-Type': 'application/json' }
-                },
-                '{"success":"true"}'
-              ]
-            );
-
-            server.respondWith(
-              'GET',
-              /\/returns-data.*/, [
-                200,
-                {
-                  json: { 'Content-Type': 'application/json' }
-                },
-                '{"success":"true"}'
-              ]
-            );
-          });
-
-          teardown(function() {
-            server.restore();
-          });
-
-          test('has carrier-list attribute', function() {
-            element = fixture('carrierList');
-
-            assert.deepEqual(element.carrierList, carrierList);
-          });
-
-          test('server is not called with empty carrier list', function() {
-            element = fixture('carrierList');
-            element.carrierList = [];
-            element.jwt = "1234";
-
-            assert.equal(server.requests.length, 0);
-          });
-
-          test('server is called when carrier list is mutated', function() {
-            element = fixture('carrierList');
-            element.carrierList = [];
-            element.jwt = "1234";
-            element.carrierList = ["FOO", "BAR"];
-
-            assert.equal(server.requests.length, 1);
-          });
-
         });
 
         suite('data handling tests', function() {
@@ -368,16 +286,6 @@
 
           teardown(function() {
             server.restore();
-          });
-
-          test('query is correctly formatted', function() {
-            var element = fixture('dataHandling');
-            element.jwt = "1234";
-
-            server.respond();
-
-            assert.equal(server.requests.length, 1);
-            assert.equal(server.requests[0].url, "/returns-data/getByRegion?region=1%2C2%2C1%2C2&providers=DPD%2CYODEL%2CINPOST");
           });
 
           test('fires event when starting drop point update', function(done){
