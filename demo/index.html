@@ -13,6 +13,13 @@
 
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
+
+    <style is="custom-style">
+      .map{
+        --map-height: 400px;
+        --map-width: 360px;
+      }
+    </style>
   </head>
   <body>
 
@@ -20,7 +27,7 @@
       <h3>Basic gfs-droppoint-map Demo</h3>
       <demo-snippet>
         <template>
-          <gfs-droppoint-map></gfs-droppoint-map>
+          <gfs-droppoint-map class="map"></gfs-droppoint-map>
         </template>
       </demo-snippet>
     </div>

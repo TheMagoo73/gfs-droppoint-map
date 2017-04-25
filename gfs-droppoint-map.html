@@ -1,5 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="gfs-droppoint-data.html">
+<link rel="import" href="../google-map/google-map.html">
+<link rel="import" href="gfs-single-droppoint-data.html">
 
 <!--
 `gfs-droppoint-map`
@@ -10,21 +12,66 @@ A map component for displaying drop point locations
 
 <dom-module id="gfs-droppoint-map">
   <template>
-    <gfs-droppoint-data></gfs-droppoint-data>
+    <style>
+      google-map {
+        height:  var(--map-height, 300px);
+        width: var(--map-width, 300px);
+      }
+    </style>
+    <google-map id="map"
+      api-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc"
+      drag-events
+      zoom="[[initialZoom]]"
+      latitude="[[startingLat]]"
+      longitude="[[startingLong]]"
+      on-google-map-ready="_mapReady"
+      on-google-map-dragend="_regionChanged">
+    </google-map>
+    <gfs-droppoint-data id="dropPoints"></gfs-droppoint-data>
+    <gfs-single-droppoint-data></gfs-single-droppoint-data>
   </template>
 
-  <script>
+  <script type="text/javascript">
     Polymer({
 
       is: 'gfs-droppoint-map',
 
       properties: {
-        prop1: {
-          type: String,
-          value: 'gfs-droppoint-map',
+        initialZoom: {
+          type: Number,
+          value: 12
         },
+        startingLat: {
+          type: Number,
+          value: 51.0674349
+        },
+        startingLong: {
+          type: Number,
+          value: -0.3176459
+        }
       },
+      _mapReady: function(e) {
+        map = this.$.map.map;
+      },
+      _regionChanged: function(e) {
+        debugger;
 
+        map = this.$.map.map;
+        var ne = map.getBounds().getNorthEast();
+        var sw = map.getBounds().getSouthWest();
+
+        data = this.$.dropPoints;
+        data.region = {
+          'tl': {
+            'lat': ne.lat(),
+            'long': sw.lng(),
+          },
+          'br': {
+            'lat': sw.lat(),
+            'long': ne.lng(),
+          }
+        }
+      }
     });
   </script>
 </dom-module>

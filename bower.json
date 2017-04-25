@@ -3,7 +3,9 @@
   "description": "A map component for displaying drop point locations",
   "main": "gfs-droppoint-map.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.4.0"
+    "polymer": "Polymer/polymer#^1.4.0",
+    "google-apis": "GoogleWebComponents/google-apis#^1.1.7",
+    "google-map": "GoogleWebComponents/google-map#^1.2.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
