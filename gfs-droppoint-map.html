@@ -1,13 +1,10 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="gfs-droppoint-data.html">
-<<<<<<< HEAD
 <link rel="import" href="gfs-single-droppoint-data.html">
-=======
 <link rel="import" href="../google-map/google-map.html">
 <link rel="import" href="../google-map/google-map-marker.html">
 <link rel="import" href="gfs-single-droppoint-data.html">
 <link rel="import" href="lodash-import.html">
->>>>>>> refs/remotes/origin/master
 
 <!--
 `gfs-droppoint-map`
@@ -18,9 +15,7 @@ A map component for displaying drop point locations
 
 <dom-module id="gfs-droppoint-map">
   <template>
-<<<<<<< HEAD
     <gfs-droppoint-data></gfs-droppoint-data>
-=======
     <style>
       google-map {
         height:  var(--map-height, 300px);
@@ -43,7 +38,6 @@ A map component for displaying drop point locations
       on-authentication-error="_authError"
       on-loading-error="_loadingError">
     </gfs-droppoint-data>
->>>>>>> refs/remotes/origin/master
     <gfs-single-droppoint-data></gfs-single-droppoint-data>
   </template>
 
@@ -53,25 +47,31 @@ A map component for displaying drop point locations
       is: 'gfs-droppoint-map',
 
       properties: {
+        /**Initial zoom level for the map*/
         initialZoom: {
           type: Number,
           value: 12
         },
+        /**Initial latitude for the center of the map*/
         startingLat: {
           type: Number,
           value: 51.0674349
         },
+        /**Initial longitude for the center of the map*/
         startingLong: {
           type: Number,
           value: -0.3176459
         },
+        /**JWT for accessing GFS API services*/
         token: {
           type: String
         },
+        /**Array of carriers to display drop points for*/
         carriers: {
           type: Array,
           value: function() { return [] }
         },
+        /**Normalised array of all of the drop points queried in this session*/
         _points: {
           type: Array,
           value: function() { return [] }
