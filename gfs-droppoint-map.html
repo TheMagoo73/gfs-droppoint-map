@@ -23,7 +23,7 @@ A map component for displaying drop point locations
       }
     </style>
     <google-map id="map"
-      api-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc"
+      api-key="[[mapKey]]"
       drag-events
       zoom="[[initialZoom]]"
       latitude="[[startingLat]]"
@@ -70,6 +70,11 @@ A map component for displaying drop point locations
         carriers: {
           type: Array,
           value: function() { return [] }
+        },
+        /**Map API key**/
+        mapKey: {
+          type: String,
+          value: ""
         },
         /**Normalised array of all of the drop points queried in this session*/
         _points: {
