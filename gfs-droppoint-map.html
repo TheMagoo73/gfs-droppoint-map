@@ -137,12 +137,12 @@ A map component for displaying drop point locations
             for (var i=0; i<s.addedCount; i++) {
               var idx = s.index + i;
               var point = s.object[idx];
-              this._addMapMarker(point, map.map);
+              this._addMapMarker(point, map.map, this);
             }
           }, this);
         }
       },
-      _addMapMarker: function(point, gmap) {
+      _addMapMarker: function(point, gmap, ctrl) {
         var markerConfig = {
           position: new google.maps.LatLng(point.geoLocation.lat, point.geoLocation.long),
           map: gmap,
@@ -152,8 +152,13 @@ A map component for displaying drop point locations
           zIndex: google.maps.Marker.MAX_ZINDEX + 1
         };
         marker = new google.maps.Marker(markerConfig);
+        marker.addListener('click', function(){
+          debugger;
+          var id = this.customData.pointId;
+          ctrl.fire('drop-point-selected', {"dropPointId": id});
+        });
         point.marker = marker;
-      }
+      },
     });
   </script>
 </dom-module>
