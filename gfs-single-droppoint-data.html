@@ -26,6 +26,32 @@ query for information on a single drop point
 
       is: 'gfs-single-droppoint-data',
 
+      /**
+       * Fired when a request to the server starts.
+       *
+       * @event started-loading
+       */
+
+      /**
+       * Fired when a request to the server successfully completes.
+       *
+       * @event completed-loading
+       * @param {object} dropPoint Drop point returned by the server.
+       */
+
+      /**
+       * Fired when a request to the server fails to authenticate.
+       *
+       * @event authentication-error
+       * @param {object} error Information on the authentication failure.
+       */
+
+      /**
+       * Fired when an authenticated request to the server fails.
+       *
+       * @event loading-error
+       * @param {object} error Information on the error.
+       */
       properties: {
         /** JWT (Java Web Token) used to authenticate with GFS servers*/
         jwt: {
@@ -37,6 +63,7 @@ query for information on a single drop point
           type: String,
           value: 'https://api.justshoutgfs.com/droppoints',
         },
+        /** Drop point Id to query */
         dropPointId: {
           type: String,
           value: ""
