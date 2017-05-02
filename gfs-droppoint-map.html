@@ -130,23 +130,29 @@ A map component for displaying drop point locations
 
           changeRecord.indexSplices.forEach(function(s){
             s.removed.forEach(function(p){
-              //TODO: remove the drop point from the map
+              if(p.marker) {
+                p.marker.setMap(null);
+              }
             });
             for (var i=0; i<s.addedCount; i++) {
               var idx = s.index + i;
               var point = s.object[idx];
-              var markerConfig = {
-                position: new google.maps.LatLng(point.geoLocation.lat, point.geoLocation.long),
-                map: map.map,
-                animation: google.maps.Animation.DROP,
-                title: point.name,
-                customData: {"pointId": point.id},
-                zIndex: google.maps.Marker.MAX_ZINDEX + 1
-              };
-              marker = new google.maps.Marker(markerConfig);
+              this._addMapMarker(point, map.map);
             }
           }, this);
         }
+      },
+      _addMapMarker: function(point, gmap) {
+        var markerConfig = {
+          position: new google.maps.LatLng(point.geoLocation.lat, point.geoLocation.long),
+          map: gmap,
+          animation: google.maps.Animation.DROP,
+          title: point.name,
+          customData: {"pointId": point.id},
+          zIndex: google.maps.Marker.MAX_ZINDEX + 1
+        };
+        marker = new google.maps.Marker(markerConfig);
+        point.marker = marker;
       }
     });
   </script>
