@@ -1,5 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="gfs-droppoint-data.html">
+<link rel="import" href="../google-map/google-map.html">
+<link rel="import" href="../google-map/google-map-marker.html">
+<link rel="import" href="gfs-single-droppoint-data.html">
+<link rel="import" href="lodash-import.html">
 
 <!--
 `gfs-droppoint-map`
@@ -10,21 +14,127 @@ A map component for displaying drop point locations
 
 <dom-module id="gfs-droppoint-map">
   <template>
-    <gfs-droppoint-data></gfs-droppoint-data>
+    <style>
+      google-map {
+        height:  var(--map-height, 300px);
+        width: var(--map-width, 300px);
+      }
+    </style>
+    <google-map id="map"
+      api-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc"
+      drag-events
+      zoom="[[initialZoom]]"
+      latitude="[[startingLat]]"
+      longitude="[[startingLong]]"
+      on-google-map-ready="_mapReady"
+      on-google-map-idle="_regionChanged">
+    </google-map>
+    <gfs-droppoint-data id="dropPoints"
+      jwt="[[token]]"
+      carrier-list="[[carriers]]"
+      on-completed-loading="_newDropPointsAvailable"
+      on-authentication-error="_authError"
+      on-loading-error="_loadingError">
+    </gfs-droppoint-data>
+    <gfs-single-droppoint-data></gfs-single-droppoint-data>
   </template>
 
-  <script>
+  <script type="text/javascript">
     Polymer({
 
       is: 'gfs-droppoint-map',
 
       properties: {
-        prop1: {
-          type: String,
-          value: 'gfs-droppoint-map',
+        initialZoom: {
+          type: Number,
+          value: 12
         },
+        startingLat: {
+          type: Number,
+          value: 51.0674349
+        },
+        startingLong: {
+          type: Number,
+          value: -0.3176459
+        },
+        token: {
+          type: String
+        },
+        carriers: {
+          type: Array,
+          value: function() { return [] }
+        },
+        _points: {
+          type: Array,
+          value: function() { return [] }
+        }
       },
+      observers: [
+        '_addRemoveCarriers(carriers.splices)',
+        '_addRemovePoints(_points.splices)'
+      ],
+      _mapReady: function(e) {
+        map = this.$.map.map;
+      },
+      _regionChanged: function(e) {
+        map = this.$.map.map;
+        var ne = map.getBounds().getNorthEast();
+        var sw = map.getBounds().getSouthWest();
 
+        data = this.$.dropPoints;
+        data.region = {
+          'tl': {
+            'lat': ne.lat(),
+            'long': sw.lng(),
+          },
+          'br': {
+            'lat': sw.lat(),
+            'long': ne.lng(),
+          }
+        }
+      },
+      _newDropPointsAvailable: function(e) {
+        _this = this;
+        e.detail.dropPoints.forEach(function(point){
+          id = point.id;
+          if(_.findIndex(_this._points, function(p){return p.id === id})==-1){
+            _this.push('_points', point);
+          };
+        });
+      },
+      _authError: function(e) {
+        console.log("Error authenticating with GFS Drop Point API; please enseure your token is valid.")
+      },
+      _loadingError: function(e) {
+        console.log("Error retrieving drop points.")
+      },
+      _addRemoveCarriers: function(changeRecord) {
+      },
+      _addRemovePoints: function(changeRecord) {
+        if(changeRecord){
+
+          var map = this.$.map;
+
+          changeRecord.indexSplices.forEach(function(s){
+            s.removed.forEach(function(p){
+              //TODO: remove the drop point from the map
+            });
+            for (var i=0; i<s.addedCount; i++) {
+              var idx = s.index + i;
+              var point = s.object[idx];
+              var markerConfig = {
+                position: new google.maps.LatLng(point.geoLocation.lat, point.geoLocation.long),
+                map: map.map,
+                animation: google.maps.Animation.DROP,
+                title: point.name,
+                customData: {"pointId": point.id},
+                zIndex: google.maps.Marker.MAX_ZINDEX + 1
+              };
+              marker = new google.maps.Marker(markerConfig);
+            }
+          }, this);
+        }
+      }
     });
   </script>
 </dom-module>
