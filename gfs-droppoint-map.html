@@ -153,7 +153,6 @@ A map component for displaying drop point locations
         };
         marker = new google.maps.Marker(markerConfig);
         marker.addListener('click', function(){
-          debugger;
           var id = this.customData.pointId;
           ctrl.fire('drop-point-selected', {"dropPointId": id});
         });
