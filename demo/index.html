@@ -8,6 +8,7 @@
 
     <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
     <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../paper-input/paper-textarea.html">
 
     <link rel="import" href="../gfs-droppoint-map.html">
 
@@ -20,6 +21,14 @@
         --map-width: 360px;
       }
     </style>
+
+    <script type="text/javascript">
+      function setJWT() {
+        map = document.getElementById("demo");
+        jwt = document.getElementById("jwt");
+        map.token = jwt.value;
+      }
+    </script>
   </head>
   <body>
 
@@ -28,9 +37,11 @@
       <demo-snippet>
         <template>
           <gfs-droppoint-map
-          map-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc" token="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkZWZkNlRFJSZkdGZDBYQnZPSmpYX2txNjFSRSIsImtpZCI6IkZWZkNlRFJSZkdGZDBYQnZPSmpYX2txNjFSRSJ9.eyJpc3MiOiJodHRwczovL2lkZW50aXR5Lmp1c3RzaG91dGdmcy5jb20iLCJhdWQiOiJodHRwczovL2lkZW50aXR5Lmp1c3RzaG91dGdmcy5jb20vcmVzb3VyY2VzIiwiZXhwIjoxNDkzNzMyNDA3LCJuYmYiOjE0OTM3Mjg4MDcsImNsaWVudF9pZCI6IkRyb3BQb2ludHNTd2FnZ2VyIiwiRHJvcFBvaW50c0FjY2VzcyI6InRydWUiLCJzY29wZSI6InJlYWQifQ.w_RzMdVmo_SyIxZByjM-ZZdFlJMZRoVCx6GyNDgzH29naf-C2tXMY1osDcz5X6U5UG9dHEQZOzPNaofdMsIPO_bC7reUO6gt3cSNYmKbg9fxhVf75CC-5ijz9cwQGer6AWHLgwOrwZk4Z4NIV-doADaeOMnfoBSXJTO8J4SruKZrEqoLgKsUJxFWrKdcfj4nSHWptl0nR_HWsw4wUgoW1k3Iv4_NfXVgFM0HdI3bXmFL6eUW34qQleJUZeRAP4WyNezu1Z6fnm7QgStIlnup0HQm_vsrXsCqt02URTN4_z_431EII_C7oANb_VHMPfx-R3IcQXYKFppAtvPE4CqdEj_hiXjqIqPE_mutqBeJu_i0xpiqfFosDyjw5CX8RXIVYRLQVBIy0qY8ohuUjn3lex07uQEqXr8DRjGDlz1Hnimh95wU-0j6aeXpyyVzfMgWDclcPbf_F4okJ2HRarxzfsDFeG4F8VBsmzKP4uSZwCTb1-AL34Phw1NRCiRQbapG3o69m8lCyv8FIteGWQtV_rbJPKkOrR9iPbJD9lL_AoQqPkZJbe_A9ODdjkd44fjiKyWoFUUuIV9kJ7stirBKDIo3Yi0YO-w_vQrwyJB-84t1Ij2jjp09FhbscVen_WOMt8_tJ60usHRpOg3n5YqaiXUzMq5OM9xSXTvFF5XTuU0"
+          id="demo"
+          map-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc" token=""
           carriers='["DPD", "YODEL", "INPOST"]'
           class="map"></gfs-droppoint-map>
+          <paper-textarea onchange="debugger; setJWT()" id="jwt" label="JWT"></paper-textarea>
         </template>
       </demo-snippet>
     </div>
