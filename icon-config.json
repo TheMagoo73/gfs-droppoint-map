@@ -1,0 +1,16 @@
+[
+  {
+    "countryCode": "default",
+    "icons": [
+      {"carrier": "DPD", "uri": "somehwere"}
+      {"carrier": "YODEL", "uri": "somehwere"}
+      {"carrier": "HERMES", "uri": "somehwere"}
+    ]
+  },
+  {
+    "countryCode": "FR",
+    "icons": [
+      {"carrier": "HERMES", "uri": "somehwere"}
+    ]
+  },
+]
